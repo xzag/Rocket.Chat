@@ -218,7 +218,11 @@ RocketChat.API.v1.addRoute(['dm.list', 'im.list'], { authRequired: true }, {
 	get() {
 		const { offset, count } = this.getPaginationItems();
 		const { sort, fields } = this.parseJsonQuery();
-		let rooms = _.pluck(RocketChat.models.Subscriptions.findByTypeAndUserId('d', this.userId).fetch(), '_room');
+		let rooms = RocketChat.models.Subscriptions.findByTypeAndUserId('d', this.userId).fetch().map(function(item) {
+			const room = item._room;
+			room.open = item.open;
+			return room;
+		});
 		const totalCount = rooms.length;
 
 		rooms = RocketChat.models.Rooms.processQueryOptionsOnResult(rooms, {
